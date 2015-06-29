@@ -182,7 +182,11 @@ class Function(object):
 
     @property
     def demangled(self):
-        return idaapi.demangle_name2(self.name, 0)
+        """Return the demangled name of the function. If none exists, return `.name`"""
+        name = idaapi.demangle_name2(self.name, 0)
+        if name:
+            return name
+        return self.name
 
     @name.setter
     def name(self, name):
@@ -244,6 +248,10 @@ class Function(object):
     @property
     def has_name(self):
         return Line(self.startEA).has_name
+
+    @property
+    def func_t(self):
+        return self._func
 
 
 def iter_function_lines(func_ea):
