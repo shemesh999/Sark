@@ -95,7 +95,7 @@ Debugging
    If you want to use the sample debuggee, put it in the plugins directory as well.
 #. Start IDA and load an IDB (otherwise weird issues arise)
 #. Load the code you want to debug into Visual Studio and set breakpoints.
-#. In Visual Studio (with the plugin file open), use ``DEBUG->Attack to process``
+#. In Visual Studio (with the plugin file open), use ``DEBUG->Attach to process``
 
     .. image:: media/debugging/debugging_menu.PNG
 
@@ -112,7 +112,7 @@ Debugging
 Important Notes
 ---------------
 
-#. When the debugging, IDA will be frozen.
+#. When debugging (breaking and stepping), IDA will be frozen.
 #. Load your IDB prior to attaching the debugger.
 #. For easy debug-on-demand, keep ``ptvsd_enable.py`` in IDA's plugins directory at all times.
 #. To set breakpoints, make sure you load into VS the files that are actually loaded by IDA.
