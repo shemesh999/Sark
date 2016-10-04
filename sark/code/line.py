@@ -250,6 +250,10 @@ class Line(object):
         return Instruction(self.ea)
 
     @property
+    def data(self):
+        return data.Data(self.ea)
+
+    @property
     def color(self):
         """Line color in IDA View"""
         color = idc.GetColor(self.ea, idc.CIC_ITEM)
