@@ -165,13 +165,35 @@ DATA_TYPE = {
 }
 
 
+def get_xmm(ea):
+    a = idaapi.get_qword(ea)
+    b = idaapi.get_qword(ea + 8)
+    if idaapi.cvar.inf.mf:
+        return (a << 64) | b
+    else:
+        return (b << 64) | a
+
+
+def get_ymm(ea):
+    a = get_xmm(ea)
+    b = get_xmm(ea + 16)
+    if idaapi.cvar.inf.mf:
+        return (a << 128) | b
+    else:
+        return (b << 128) | a
+
+
 class Data(object):
     def __init__(self, ea):
         self.ea = ea
 
     @property
     def dt_type(self):
-        return idaapi.get_flags_novalue(self.ea) & idaapi.DT_TYPE
+        return self.flags & idaapi.DT_TYPE
+
+    @property
+    def flags(self):
+        return idaapi.get_flags_novalue(self.ea)
 
     def __repr__(self):
         return '<Data(ea=0x{:X}, type_={})>'.format(self.ea, DATA_TYPE[self.dt_type])
@@ -182,62 +204,98 @@ class Data(object):
 
     @property
     def is_dword(self):
-        return self.dt_type == idaapi.FF_DWRD
+        return idaapi.isDwrd(self.flags)
 
     @property
     def is_word(self):
-        return self.dt_type == idaapi.FF_WORD
+        return idaapi.isWord(self.flags)
 
     @property
     def is_byte(self):
-        return self.dt_type == idaapi.FF_BYTE
+        return idaapi.isByte(self.flags)
 
     @property
     def is_qword(self):
-        return self.dt_type == idaapi.FF_QWRD
+        return idaapi.isQwrd(self.flags)
 
     @property
     def is_tbyte(self):
-        return self.dt_type == idaapi.FF_TBYT
+        return idaapi.isTbyt(self.flags)
 
     @property
-    def is_asci(self):
-        return self.dt_type == idaapi.FF_ASCI
+    def is_ascii(self):
+        return idaapi.isASCII(self.flags)
 
     @property
     def is_struct(self):
-        return self.dt_type == idaapi.FF_STRU
+        return idaapi.isStruct(self.flags)
 
     @property
-    def is_octaword(self):
-        return self.dt_type == idaapi.FF_OWRD
+    def is_oword(self):
+        return idaapi.isOwrd(self.flags)
 
-    is_xmm = is_octaword
+    is_xmm = is_oword
 
     @property
     def is_float(self):
-        return self.dt_type == idaapi.FF_FLOAT
+        return idaapi.isFloat(self.flags)
 
     @property
     def is_double(self):
-        return self.dt_type == idaapi.FF_DOUBLE
+        return idaapi.isDouble(self.flags)
 
     @property
     def is_packed_real(self):
-        return self.dt_type == idaapi.FF_PACKREAL
+        return idaapi.isPackReal(self.flags)
 
     @property
     def is_align(self):
-        return self.dt_type == idaapi.FF_ALIGN
+        return idaapi.isAlign(self.flags)
 
     @property
     def is_3byte(self):
-        return self.dt_type == idaapi.FF_3BYTE
+        return idaapi.is3byte(self.flags)
 
     @property
     def is_custom(self):
-        return self.dt_type == idaapi.FF_CUSTOM
+        return idaapi.isCustom(self.flags)
 
     @property
     def is_ymm(self):
-        return self.dt_type == idaapi.FF_YWRD
+        return idaapi.isYwrd(self.flags)
+
+    @property
+    def size(self):
+        return idaapi.get_full_data_elsize(self.ea, self.flags)
+
+    @property
+    def value(self):
+        if self.is_byte:
+            return idaapi.get_full_byte(self.ea)
+
+        elif self.is_word:
+            return idaapi.get_full_word(self.ea)
+
+        elif self.is_dword:
+            return idaapi.get_full_long(self.ea)
+
+        elif self.is_qword:
+            return idaapi.get_qword(self.ea)
+
+        elif self.is_oword:
+            return get_xmm(self.ea)
+
+        elif self.is_3byte:
+            return idaapi.get_3byte(self.ea)
+
+        elif self.is_float:
+            return idc.GetFloat(self.ea)
+
+        elif self.is_double:
+            return idc.GetDouble(self.ea)
+
+        elif self.is_ymm:
+            return get_ymm(self.ea)
+
+        else:
+            raise NotImplementedError("Value getter not implemented for type ({}).".format(DATA_TYPE[self.dt_type]))
