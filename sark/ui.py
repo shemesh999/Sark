@@ -314,9 +314,9 @@ class NXGraph(idaapi.GraphViewer):
     def OnRefresh(self):
         self.Clear()
 
-        node_ids = {node: self.AddNode(node) for node in self._graph.nodes_iter()}
+        node_ids = {node: self.AddNode(node) for node in self._graph.nodes}
 
-        for frm, to in self._graph.edges_iter():
+        for frm, to in self._graph.edges:
             self.AddEdge(node_ids[frm], node_ids[to])
 
         self.update_node_info()

@@ -39,7 +39,7 @@ def mark_not_reaching_nodes(ea, source_color=COLOR_SOURCE, other_color=COLOR_NOT
     graph = graph.reverse()
     block_ea = get_block_start(ea)
     reaching = nx.descendants(graph, block_ea)
-    for node_ea in graph.nodes_iter():
+    for node_ea in graph.nodes:
         if node_ea not in reaching:
             CodeBlock(node_ea).color = other_color
 
